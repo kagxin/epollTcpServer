@@ -1,0 +1,20 @@
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_PROGRAM_VERSION	5.9~svn20110310	//
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+INFTIM	include/op_epoll.h	17;"	d
+LISTENQ	include/op_epoll.h	16;"	d
+OPENMAX	include/op_epoll.h	15;"	d
+_OP_EPOLL_H_	include/op_epoll.h	2;"	d
+init_servsock	src/op_epoll.c	/^static int init_servsock(char * ip, int port)$/;"	f	file:
+op_add_event	src/op_epoll.c	/^static void op_add_event(int epollfd,int fd)$/;"	f	file:
+op_delete_event	src/op_epoll.c	/^static void op_delete_event(int epollfd,int fd)$/;"	f	file:
+op_modify_event	src/op_epoll.c	/^static void op_modify_event(int epollfd,int fd)$/;"	f	file:
+op_read	src/op_epoll.c	/^int op_read(int epollfd, int fd, void * buf, ssize_t count)$/;"	f
+op_write	src/op_epoll.c	/^int op_write(int epollfd, int fd, const void *buf, size_t count)$/;"	f
+set_nonblocking	src/op_epoll.c	/^static void set_nonblocking(int sock)$/;"	f	file:
+start_server	src/op_epoll.c	/^int start_server(char *ip, int port)$/;"	f
+handle	test/test.c	/^void handle(int epollfd ,int clisockfd)$/;"	f
+main	test/test.c	/^int main()$/;"	f
