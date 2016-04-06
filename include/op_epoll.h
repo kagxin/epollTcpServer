@@ -12,8 +12,24 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define MAX_CONNECT	    		128 
+#define MAX_CONNECT	    		256 
 #define MAX_LISTEN_QUEUE		5
+
+#define THREAD 32
+#define QUEUE  256
+
+typedef struct cli
+{
+	int fd;
+	char *ip;
+}clientmember;
+
+typedef struct list
+{
+	clientmember clilist[MAX_CONNECT];
+	int tailindex;
+}clilist_t;
+
 
 int start_server(char *ip, int port);
 int op_read(int *fd, void * buf, ssize_t count);

@@ -3,6 +3,7 @@
 
 threadpool_t *epoll_pool;
 int epollfd;
+clilist_t clilist;
 
 static void set_nonblocking(int sock)
 {
@@ -57,6 +58,7 @@ static int init_servsock(char * ip, int port)
 	set_nonblocking(listenfd);
 
 	setsockopt(listenfd,SOL_SOCKET,SO_REUSEADDR,&on,sizeof(int));
+
 	bzero(&serveraddr, sizeof(serveraddr));
 	serveraddr.sin_family = AF_INET;
 	inet_aton(ip, &(serveraddr.sin_addr));
@@ -76,6 +78,29 @@ static int init_servsock(char * ip, int port)
 	}
 
 	return listenfd;
+}
+
+
+int add_clilist(clientmember cli)
+{
+	clilist.clilist[clilist.tailindex] = cli;
+	clilist.tailindex ++;
+}
+
+int del_clilist(clientmember cli)//del by fd
+{
+	int i=0, j=0;
+	for(i=0; i<clilist.tailindex; i++)
+	{
+		if(clilist.clilist[i].fd == cli.fd)
+		{
+			for(j=i; j<clilist.tailindex-1; j++)
+			{
+				clilist.clilist[j] = clilist.clilist[j+1];
+			}
+		}
+	}
+	clilist.tailindex--;
 }
 
 int op_read(int *fd, void * buf, ssize_t count)
@@ -142,7 +167,7 @@ int start_server(char *ip, int port)
 
 	printf("bind : \"ip\":%s,\"port\":%d\n", ip, port);
 	
-	epoll_pool = threadpool_create(32, MAX_CONNECT-32, 0);
+	epoll_pool = threadpool_create(THREAD, QUEUE, 0);
 	if(!epoll_pool)
 	{
 		printf("%s\n", "threadpool init error!");

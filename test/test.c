@@ -17,7 +17,6 @@ void handle(void * clisockfd)
 	memset(line, 0, 255);
 }
 
-
 int main()
 {
 
