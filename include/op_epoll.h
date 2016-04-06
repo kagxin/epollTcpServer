@@ -21,7 +21,7 @@
 typedef struct cli
 {
 	int fd;
-	char *ip;
+	char ip[128];
 }clientmember;
 
 typedef struct list

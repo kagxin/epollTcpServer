@@ -1,9 +1,16 @@
 #include "op_epoll.h"
 #include "threadpool.h"
 
-threadpool_t *epoll_pool;
+typedef struct serverStruct
+{
+	threadpool_t *epollpool;
+	int epollfd;
+	clilist_t clilist;	
+}*pserver_t, server_t;
+
+threadpool_t *epollpool;
 int epollfd;
-clilist_t clilist;
+clilist_t clilist;	
 
 static void set_nonblocking(int sock)
 {
@@ -115,12 +122,18 @@ int op_read(int *fd, void * buf, ssize_t count)
 	{
 		printf("%s, fd is %d\n", "Client disconnect.", (*fd));
 		op_delete_event(fd);
+		clientmember member;
+		member.fd = (*fd);
+		del_clilist(member);
 		return -2;
 	}
 	else if(n < 0)
 	{
 		printf("Read error. Error code is %d\n", errno);
 		op_delete_event(fd);
+		clientmember member;
+		member.fd = (*fd);
+		del_clilist(member);
 		return -3;
 	}
 	else
@@ -141,12 +154,18 @@ int op_write(int *fd, const void *buf, size_t count)
 	{
 		printf("%s,fd is %d\n", "Client disconnect.", (*fd));
 		op_delete_event(fd);
+		clientmember member;
+		member.fd = (*fd);
+		del_clilist(member);
 		return -2;
 	}					
 	else if(n < 0)
 	{					
 		printf("Read error. Error code is %d\n", errno);
 		op_delete_event(fd);
+		clientmember member;
+		member.fd = (*fd);
+		del_clilist(member);
 		return -3;	
 	}
 	else
@@ -167,8 +186,8 @@ int start_server(char *ip, int port)
 
 	printf("bind : \"ip\":%s,\"port\":%d\n", ip, port);
 	
-	epoll_pool = threadpool_create(THREAD, QUEUE, 0);
-	if(!epoll_pool)
+	epollpool = threadpool_create(THREAD, QUEUE, 0);
+	if(!epollpool)
 	{
 		printf("%s\n", "threadpool init error!");
 		exit(1);
@@ -187,7 +206,7 @@ int start_server(char *ip, int port)
 		for(i = 0; i < nfds; ++i) 
 		{
 			if(events[i].data.fd == listenfd) {
-				
+
 				connfd = accept(listenfd, (struct sockaddr *)&clientaddr, &clilen);				
 				if(connfd < 0) {
 					perror("connfd < 0");
@@ -195,6 +214,12 @@ int start_server(char *ip, int port)
 				}				
 				set_nonblocking(connfd);						
 				printf("accept connect from %s, fd is %d\n", inet_ntoa(clientaddr.sin_addr), connfd);
+
+				clientmember member;
+				member.fd = connfd;
+				strcpy(member.ip, inet_ntoa(clientaddr.sin_addr));
+				add_clilist(member);
+
 				ev.data.fd = connfd;
 				ev.events = EPOLLIN | EPOLLET;
 
@@ -202,7 +227,7 @@ int start_server(char *ip, int port)
 			}
 			else if(events[i].events & EPOLLIN) 
 			{						
-				threadpool_add(epoll_pool, &handle, &events[i].data.fd, 0);
+				threadpool_add(epollpool, &handle, &events[i].data.fd, 0);
 			}
 			else if(events[i].events & EPOLLOUT) 
 			{
